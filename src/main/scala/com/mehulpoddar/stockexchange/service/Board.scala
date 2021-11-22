@@ -48,7 +48,7 @@ case class Board(news: Seq[String],
     copy(history = history ++ Seq(HistoryEntry(roundNo, players, companies)))
 
   def displayBoard(showCards: Boolean = false): Unit = {
-    println()
+    line("\n", 30)
 
     textLine("Game Board", "=", 10)
     println()
