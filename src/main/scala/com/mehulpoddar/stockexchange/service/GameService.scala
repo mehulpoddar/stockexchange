@@ -6,7 +6,7 @@ import scala.util.Random
 
 trait GameService {
   def setup(gs: GameSettings): Board = {
-    val players = gs.playerDetails.map(Player(_, gs.initCashInHand, Map.empty ))
+    val players = gs.playerDetails.zipWithIndex.map(nameCode => Player(nameCode._2, nameCode._1, gs.initCashInHand, Map.empty ))
     val companies = gs.companyDetails.foldLeft(Map.empty[String, Company]) { (map, c) =>
       map + (c.code -> Company(c.code, c.name, c.startPrice, c.startPrice, gs.initCompanyShares))
     }

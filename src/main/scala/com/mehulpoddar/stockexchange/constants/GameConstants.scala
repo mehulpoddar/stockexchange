@@ -26,10 +26,16 @@ object GameConstants {
     CompanyDetails("ih", "Indian Hotels", 80, ihCards),
   )
 
+  object actionCode {
+    val BUY = "b"
+    val SELL = "s"
+    val PASS = "p"
+  }
+
   val actionsSeq = Seq(
-    Action("b", "buy", "bought"),
-    Action("s", "sell", "sold"),
-    Action("p", "pass", "passed")
+    Action(actionCode.BUY, "buy", "bought"),
+    Action(actionCode.SELL, "sell", "sold"),
+    Action(actionCode.PASS, "pass", "passed")
   )
 
   def line(ch: String, count: Int) = println(s"${ch * count}")

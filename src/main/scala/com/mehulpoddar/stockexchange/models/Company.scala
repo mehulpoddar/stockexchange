@@ -1,5 +1,7 @@
 package com.mehulpoddar.stockexchange.models
 
+import com.mehulpoddar.stockexchange.constants.GameConstants.actionCode
+
 case class Company(code:String,
                    name: String,
                    startingPrice: Int,
@@ -15,8 +17,8 @@ case class Company(code:String,
 
   def processAction(playerInput: PlayerInput): Company = {
     playerInput.action.code match {
-      case "b" => copy(remainingShares = remainingShares - playerInput.value)
-      case "s" => copy(remainingShares = remainingShares + playerInput.value)
+      case actionCode.BUY => copy(remainingShares = remainingShares - playerInput.value)
+      case actionCode.SELL => copy(remainingShares = remainingShares + playerInput.value)
     }
   }
 }

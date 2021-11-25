@@ -1,6 +1,6 @@
 package com.mehulpoddar.stockexchange.service
 
-import com.mehulpoddar.stockexchange.models.PlayerInput
+import com.mehulpoddar.stockexchange.constants.GameConstants.actionCode
 
 import scala.annotation.tailrec
 
@@ -47,7 +47,7 @@ trait Gameplay {
     newBoard.displayBoard(true)
 
     val playerInput = newBoard.getPlayerInput
-    val updatedBoard = if(playerInput.action.code != "p") processMove(newBoard, playerInput) else newBoard
+    val updatedBoard = if(playerInput.action.code != actionCode.PASS) processMove(newBoard, playerInput) else newBoard
     val updatedBoardWithNews = updatedBoard.addNews(Seq(s"${playerInput.displayText(updatedBoard)}"))
 
     val nextPlayer = (currentPlayer + 1) % updatedBoardWithNews.players.size

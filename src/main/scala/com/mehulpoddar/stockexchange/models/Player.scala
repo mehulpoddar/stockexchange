@@ -1,6 +1,9 @@
 package com.mehulpoddar.stockexchange.models
 
-case class Player(name: String,
+import com.mehulpoddar.stockexchange.constants.GameConstants.actionCode
+
+case class Player(code: Int,
+                  name: String,
                   cashInHand: Int,
                   allottedShares: Map[String, Int],
                   cards: Map[String, Seq[Int]] = Map.empty[String, Seq[Int]]) {
@@ -17,13 +20,13 @@ case class Player(name: String,
 
   def processAction(playerInput: PlayerInput, companies: Map[String, Company]): Player = {
     val updatedCash = playerInput.action.code match {
-      case "b" => cashInHand - (companies (playerInput.companyCode).currentPrice * playerInput.value)
-      case "s" => cashInHand + (companies (playerInput.companyCode).currentPrice * playerInput.value)
+      case actionCode.BUY => cashInHand - (companies (playerInput.companyCode).currentPrice * playerInput.value)
+      case actionCode.SELL => cashInHand + (companies (playerInput.companyCode).currentPrice * playerInput.value)
     }
 
     val updatedShares = playerInput.action.code match {
-      case "b" => allottedShares + (playerInput.companyCode -> (allottedShares.getOrElse(playerInput.companyCode, 0) + playerInput.value))
-      case "s" => allottedShares + (playerInput.companyCode -> (allottedShares(playerInput.companyCode) - playerInput.value))
+      case actionCode.BUY => allottedShares + (playerInput.companyCode -> (allottedShares.getOrElse(playerInput.companyCode, 0) + playerInput.value))
+      case actionCode.SELL => allottedShares + (playerInput.companyCode -> (allottedShares(playerInput.companyCode) - playerInput.value))
     }
     val finalUpdatedShares =
       if(updatedShares(playerInput.companyCode) == 0) updatedShares - playerInput.companyCode else updatedShares

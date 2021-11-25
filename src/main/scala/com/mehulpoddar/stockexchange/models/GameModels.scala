@@ -1,5 +1,6 @@
 package com.mehulpoddar.stockexchange.models
 
+import com.mehulpoddar.stockexchange.constants.GameConstants.actionCode
 import com.mehulpoddar.stockexchange.service.Board
 
 case class GameSettings(rounds: Int,
@@ -22,9 +23,9 @@ case class PlayerInput(playerId: Int, action: Action, companyCode: String, value
 
   def displayText(board: Board) = {
     action.code match {
-      case "b" | "s" => s"${board.players(playerId).name} ${action.display} " +
+      case actionCode.BUY | actionCode.SELL => s"${board.players(playerId).name} ${action.display} " +
       s"$value share(s) of ${board.companies(companyCode).name}"
-      case "p" => s"${board.players(playerId).name} ${action.display}"
+      case actionCode.PASS => s"${board.players(playerId).name} ${action.display}"
     }
   }
 }

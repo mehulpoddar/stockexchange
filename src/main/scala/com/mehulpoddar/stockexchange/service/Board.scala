@@ -1,7 +1,7 @@
 package com.mehulpoddar.stockexchange.service
 
 import com.mehulpoddar.stockexchange.models._
-import com.mehulpoddar.stockexchange.constants.GameConstants.{line, textLine}
+import com.mehulpoddar.stockexchange.constants.GameConstants.{actionCode, line, textLine}
 
 import scala.io.StdIn.readLine
 import scala.util.Try
@@ -16,24 +16,26 @@ case class Board(news: Seq[String],
                  history: Seq[HistoryEntry] = Seq.empty) {
 
   def getPlayerInput: PlayerInput = {
-    val input = readLine(s"\n${players(activePlayerId).name}, enter your move: ").split(" ")
+    val input = readLine(s"\n${players(activePlayerId).name}, enter your move: ").trim.split(" ")
     val (action, companyCode, value) = (Try(input(0)), Try(input(1)), Try(input(2).toInt))
 
-    val validInput =
-      action.isSuccess && actions.contains(action.get) &&
-        (action.get == "p" ||
-        (companyCode.isSuccess && value.isSuccess &&
-        companies.contains(companyCode.get) &&
-        value.get > 0 && value.get <= settings.initCompanyShares))
+    val actionCompanyValueCheck =
+      companyCode.isSuccess && value.isSuccess &&
+      companies.contains(companyCode.get) &&
+      value.get > 0 && value.get <= settings.initCompanyShares
 
-    val conditionalValidation = validInput && (action.get match {
-      case "b" => value.get <= companies(companyCode.get).remainingShares &&
-        players(activePlayerId).cashInHand >= (companies(companyCode.get).currentPrice * value.get)
-      case "s" => players(activePlayerId).allottedShares(companyCode.get) >= value.get
-      case "p" => true
+    val validInput = action.isSuccess && actions.contains(action.get) && (action.get match {
+      case actionCode.BUY =>
+        value.get <= companies(companyCode.get).remainingShares &&
+        players(activePlayerId).cashInHand >= (companies(companyCode.get).currentPrice * value.get) &&
+        actionCompanyValueCheck
+      case actionCode.SELL =>
+        players(activePlayerId).allottedShares.getOrElse(companyCode.get, 0) >= value.get &&
+        actionCompanyValueCheck
+      case actionCode.PASS => true
     })
 
-    if(conditionalValidation) {
+    if(validInput) {
       PlayerInput(activePlayerId, actions(action.get), companyCode.getOrElse(""), value.getOrElse(0))
     } else {
       println("Invalid input, try again.")
