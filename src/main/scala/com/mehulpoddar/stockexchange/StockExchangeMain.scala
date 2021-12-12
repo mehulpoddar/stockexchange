@@ -13,6 +13,7 @@ object Main extends App with GameService with Gameplay {
     initCompanyShares,
     cardsPerPlayerPerRound,
     actionsSeq,
+    defaultActions,
     companyDetails,
     playerDetails
   )

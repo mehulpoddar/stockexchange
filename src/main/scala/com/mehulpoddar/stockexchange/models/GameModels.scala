@@ -9,15 +9,16 @@ case class GameSettings(rounds: Int,
                         initCompanyShares: Int,
                         cardsPerPlayerPerRound: Int,
                         actions: Seq[Action],
+                        defaultPlayerActions: Seq[String],
                         companyDetails: Seq[CompanyDetails],
                         playerDetails: Seq[String])
 
 case class CompanyDetails(code: String, name: String, startPrice: Int, cardDetails: Seq[(Int, Int)])
 // cardDetails = Seq( (card value 1, count of card value 1), ...)
 
-case class Card(companyCode: String, companyName: String, value: Int)
-
-case class Action(code: String, name: String, display: String)
+trait Card
+case class Index(companyCode: String, companyName: String, value: Int) extends Card
+case class Action(code: String, name: String, display: String, phase: String) extends Card
 
 case class PlayerInput(playerId: Int, action: Action, companyCode: String, value: Int) {
 

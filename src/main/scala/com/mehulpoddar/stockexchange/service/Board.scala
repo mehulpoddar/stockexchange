@@ -1,7 +1,7 @@
 package com.mehulpoddar.stockexchange.service
 
 import com.mehulpoddar.stockexchange.models._
-import com.mehulpoddar.stockexchange.constants.GameConstants.{actionCode, line, textLine}
+import com.mehulpoddar.stockexchange.constants.GameConstants.{actionCode, actionPhase, line, textLine}
 
 import scala.io.StdIn.readLine
 import scala.util.Try
@@ -13,6 +13,7 @@ case class Board(news: Seq[String],
                  actions: Map[String, Action],
                  settings: GameSettings,
                  activePlayerId: Int = -1,
+                 gamePhase: String = actionPhase.IN_TURN,
                  history: Seq[HistoryEntry] = Seq.empty) {
 
   def getPlayerInput: PlayerInput = {
@@ -24,7 +25,10 @@ case class Board(news: Seq[String],
       companies.contains(companyCode.get) &&
       value.get > 0 && value.get <= settings.initCompanyShares
 
-    val validInput = action.isSuccess && actions.contains(action.get) && (action.get match {
+    val baseValidity = action.isSuccess && actions.contains(action.get) &&
+      players(activePlayerId).actionState.getOrElse(gamePhase, Seq.empty[String]).contains(action.get)
+
+    val validInput = baseValidity && (action.get match {
       case actionCode.BUY =>
         value.get <= companies(companyCode.get).remainingShares &&
         players(activePlayerId).cashInHand >= (companies(companyCode.get).currentPrice * value.get) &&

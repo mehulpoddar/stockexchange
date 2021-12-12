@@ -1,6 +1,6 @@
 package com.mehulpoddar.stockexchange.service
 
-import com.mehulpoddar.stockexchange.constants.GameConstants.actionCode
+import com.mehulpoddar.stockexchange.constants.GameConstants.{actionCode, actionPhase}
 
 import scala.annotation.tailrec
 
@@ -16,15 +16,23 @@ trait Gameplay {
     if(currentRound > 0) {
       val roundNo = board.settings.rounds - currentRound + 1
       val boardWithNews = board.clearNews.addNews(Seq(s"Round $roundNo"))
-      val updatedBoard = distributeCards(boardWithNews)
-
+      val updatedBoard = setupPlayers(boardWithNews)
       val startPlayer = currentRound % updatedBoard.players.size
-      val newBoard = turn(updatedBoard, updatedBoard.settings.turns, startPlayer)
 
-      val newBoardEval = evaluateCards(newBoard).addToHistory(roundNo)
-      newBoardEval.displayBoard()
-      newBoardEval.showHistory
-      round(newBoardEval, currentRound - 1)
+      val boardInTurn = updatedBoard.copy(gamePhase = actionPhase.IN_TURN)
+      val playBoardInTurn = turn(boardInTurn, boardInTurn.settings.turns, startPlayer)
+
+      val boardPreEval = playBoardInTurn.copy(gamePhase = actionPhase.PRE_EVAL)
+      val playBoardPreEval = boardPreEval
+
+      val boardEval = evaluateCards(playBoardPreEval).addToHistory(roundNo)
+
+      val boardPostEval = boardEval.copy(gamePhase = actionPhase.POST_EVAL)
+      val playBoardPostEval = boardPostEval
+
+      playBoardPostEval.displayBoard()
+      playBoardPostEval.showHistory
+      round(playBoardPostEval, currentRound - 1)
     } else {
       board
     }

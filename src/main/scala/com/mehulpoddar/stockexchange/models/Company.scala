@@ -11,7 +11,7 @@ case class Company(code:String,
 
   def updatePrice(players: Seq[Player]): Company = {
     val newPrice = players.foldLeft(currentPrice)((price, player) =>
-      price + player.cards.getOrElse(code, Seq(0)).sum)
+      price + player.indexes.getOrElse(code, Seq(0)).sum)
     copy(currentPrice = if(newPrice > 0) newPrice else 0)
   }
 

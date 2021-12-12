@@ -1,27 +1,30 @@
 package com.mehulpoddar.stockexchange.service
 
-import com.mehulpoddar.stockexchange.models.{Action, Card, Company, GameSettings, Player, PlayerInput}
+import com.mehulpoddar.stockexchange.models.{Action, Card, Company, GameSettings, Index, Player, PlayerInput}
 
 import scala.util.Random
 
 trait GameService {
   def setup(gs: GameSettings): Board = {
-    val players = gs.playerDetails.zipWithIndex.map(nameCode => Player(nameCode._2, nameCode._1, gs.initCashInHand, Map.empty ))
+    val players = gs.playerDetails.zipWithIndex.map(nameCode => Player(nameCode._2, nameCode._1, gs.initCashInHand))
     val companies = gs.companyDetails.foldLeft(Map.empty[String, Company]) { (map, c) =>
       map + (c.code -> Company(c.code, c.name, c.startPrice, c.startPrice, gs.initCompanyShares))
     }
     val cardSet = gs.companyDetails.foldLeft(Seq.empty[Card]) { (seq, c) =>
-      seq ++ c.cardDetails.foldLeft(Seq.empty[Card]) { (cseq, d) => cseq ++ Seq.fill(d._2)(Card(c.code, c.name, d._1)) }
+      seq ++ c.cardDetails.foldLeft(Seq.empty[Card]) { (cseq, d) => cseq ++ Seq.fill(d._2)(Index(c.code, c.name, d._1)) }
     }
     val actionsMap = gs.actions.foldLeft(Map.empty[String, Action])((map, a) => map + (a.code -> a))
     Board(Seq("Welcome to StockExchange!"), companies, players, cardSet, actionsMap, gs)
   }
 
-  def distributeCards(board: Board): Board = {
+  def setupPlayers(board: Board): Board = {
     val shuffledCardSet = Random.shuffle(board.cardSet)
     val playersWithCards = Seq.tabulate(board.players.size)(i => {
       val numCards = board.settings.cardsPerPlayerPerRound
-      board.players(i).organizeCards(shuffledCardSet.slice(numCards * i, numCards * (i + 1)))
+      val playerCardSet = shuffledCardSet.slice(numCards * i, numCards * (i + 1))
+      val defaultActions = board.settings.defaultPlayerActions
+        .foldLeft(Seq.empty[Action])((seq, aCode) => seq ++ Seq(board.actions(aCode)))
+      board.players(i).organizeCards(playerCardSet ++ defaultActions)
     })
     board.copy(players = playersWithCards)
   }
